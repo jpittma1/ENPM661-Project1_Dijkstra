@@ -1,4 +1,4 @@
-# ENPM661-Project1_Dijkstra
+# ENPM661-Project2_Dijkstra
 UMD-CP PMRO. Spring 2022
 #Section 0101
 #Jerry Pittman, Jr. UID: 117707120
