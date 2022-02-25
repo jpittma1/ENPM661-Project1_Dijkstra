@@ -7,7 +7,7 @@ UMD-CP PMRO. Spring 2022
 
 #********************************************
 #Requires the following in same folder to run:
-# 1) Python code: "functions.py" and "jpittma1_project1.py"
+# 1) Python code: "functions.py" and "jpittma1_project2.py"
 # 2) Image for Problem 2.a: "testudo.png"
 # 3) Video for problem 1 and 2: "1tagvideo.mp4"
 #********************************************
