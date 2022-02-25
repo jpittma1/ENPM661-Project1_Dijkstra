@@ -16,6 +16,14 @@ import sys
 import math
 from obstacles import *
 
+def GetInitialStateS():
+    print("Enter initial node, separated by spaces: ")
+    initial=[int(x) for x in input().split()]
+    print("Enter goal node, separated by spaces: ")
+    final=[int(x) for x in input().split()]
+    return initial, final
+
+###########################################
 '''OpenCV/ Visualization Functions'''
 def updateNodesOnMap(map, node_state, color):
     x,y, _ = map.shape
@@ -54,7 +62,9 @@ def addObstacles2Map(map):
     # cv2.fillPoly(black_frame , [hull], (255, 255, 255))
     
     return map
-#Return 1 if within an obstacle or outside of map
+
+############################################################
+'''Return 1 if within an obstacle or outside of map'''
 def isInObstacleSpace(x,y):
     x_max=400
     y_max=250
@@ -91,121 +101,86 @@ def determinePossibleMoves(node):
     possibleMoves=[]
     
     possibleMoves.append(ActionMoveUp(i,j))
-    ActionMoveUpRight(i,j)
-    ActionMoveRight(i,j)
-    ActionMoveDownRight(i,j)
-    ActionMoveDown(i,j)
-    ActionMoveDownLeft(i,j)
-    ActionMoveLeft(i,j)
-    ActionMoveUpLeft(i,j)
+    possibleMoves.append(ActionMoveUpRight(i,j))
+    possibleMoves.append(ActionMoveRight(i,j))
+    possibleMoves.append(ActionMoveDownRight(i,j))
+    possibleMoves.append(ActionMoveDown(i,j))
+    possibleMoves.append(ActionMoveDownLeft(i,j))
+    possibleMoves.append(ActionMoveLeft(i,j))
+    possibleMoves.append(ActionMoveUpLeft(i,j))
     
     
-    moves = ['N','NE', 'E', 'SE', 'S', 'SW','W', 'NW']
-    final_moves = ['N','NE', 'E', 'SE', 'S', 'SW','W', 'NW']
-    move_i = [i, i+1, i+1, i+1, i, i-1, i-1, i-1]
-    move_j = [j+1, j+1, j, j-1, j-1, j-1, j, j+1]
+    # moves = ['N','NE', 'E', 'SE', 'S', 'SW','W', 'NW']
+    # # final_moves = ['N','NE', 'E', 'SE', 'S', 'SW','W', 'NW']
+    # move_i = [i, i+1, i+1, i+1, i, i-1, i-1, i-1]
+    # move_j = [j+1, j+1, j, j-1, j-1, j-1, j, j+1]
     
-    for move in range(len(moves)):
+    for move in range(len(possibleMoves)):
+        #verify not in obstacle and within map boundaries and if possible move is a parent
         
-        ActionMoveDown
-        ActionMoveDownLeft
-        ActionMoveDownRight
-        ActionMoveUp
-        ActionMoveUpRight
-        ActionMoveUpLeft
-        ActionMoveLeft
-        ActionMoveRight
-        
-        if (isInObstacleSpace(move_i[move], move_j[move]) or current_node.getParentState() == [move_i[move], move_j[move]]):
-            final_moves.remove(moves[move])
-    # print(final_moves)
+        # if (isInObstacleSpace(move_i[move], move_j[move]) or node[2] == [move_i[move], move_j[move]]):
+        if (isInObstacleSpace(possibleMoves[move][0], possibleMoves[move][1]) or node[2] == [possibleMoves[move][0], possibleMoves[move][1]]):
+            possibleMoves.remove(possibleMoves[move])
+    
+    print(possibleMoves)
+    
     return possibleMoves
 
 '''-----8 Subfunctions for actions-----
 Action sets= {(1,0), (-1,0), (0,1), 
-(0,-1), (1,1), (-1,1),(1,-1),(-1,-1)}
-moves_x={'N':i, 'NE':i+1, 'E':i+1, 'SE':i+1, 
-'S':i, 'SW':i-1, 'W':i-1, 'NW':i-1}
-   moves_y={'N':j+1, 'NE':j+1, 'E':j, 'SE':j-1, 
-   'S':j-1, 'SW':j-1, 'W':j, 'NW':j+1}'''
-def ActionMoveLeft(CurrentNode):
-    NewNode = CurrentNode.copy()
-    position = NewNode.index(0)
+(0,-1), (1,1), (-1,1),(1,-1),(-1,-1)}'''
+def ActionMoveLeft(x,y):
+    NewNode = [x-1 , y]
     
-    tmp = NewNode[position]
-    NewNode[position] = NewNode[position - 1]
-    NewNode[position - 1] = tmp
     return NewNode
 
-def ActionMoveRight(CurrentNode):
-    NewNode = CurrentNode.copy()
-    position = NewNode.index(0)
-
-    tmp = NewNode[position]
-    NewNode[position] = NewNode[position + 1]
-    NewNode[position + 1] = tmp
+def ActionMoveRight(x,y):
+    NewNode = [x+1 , y]
+    
     return NewNode
 
-def ActionMoveUp(CurrentNode):
-    NewNode = CurrentNode.copy()
-    position = NewNode.index(0)
-
-    tmp = NewNode[position]
-    NewNode[position] = NewNode[position - 3]
-    NewNode[position - 3] = tmp
+def ActionMoveUp(x,y):
+    NewNode = [x , y+1]
+    
     return NewNode
 
-def ActionMoveDown(CurrentNode):
-    NewNode = CurrentNode.copy()
-    position = NewNode.index(0)
-
-    tmp = NewNode[position]
-    NewNode[position] = NewNode[position + 3]
-    NewNode[position + 3] = tmp
+def ActionMoveDown(x,y):
+    NewNode = [x , y-1]
+    
     return NewNode
 
-def ActionMoveUpRight(CurrentNode):
-    NewNode = CurrentNode.copy()
-    position = NewNode.index(0)
-
-    tmp = NewNode[position]
-    NewNode[position] = NewNode[position + 3]
-    NewNode[position + 3] = tmp
+def ActionMoveUpRight(x,y):
+    NewNode = [x+1 , y+1]
+    
     return NewNode
 
-def ActionMoveDownRight(CurrentNode):
-    NewNode = CurrentNode.copy()
-    position = NewNode.index(0)
-
-    tmp = NewNode[position]
-    NewNode[position] = NewNode[position + 3]
-    NewNode[position + 3] = tmp
+def ActionMoveDownRight(x,y):
+    NewNode = [x+2 , y-1]
+    
     return NewNode
 
-def ActionMoveDownLeft(CurrentNode):
-    NewNode = CurrentNode.copy()
-    position = NewNode.index(0)
-
-    tmp = NewNode[position]
-    NewNode[position] = NewNode[position + 3]
-    NewNode[position + 3] = tmp
+def ActionMoveDownLeft(x,y):
+    NewNode = [x-1 , y-1]
+    
     return NewNode
 
-def ActionMoveUpLeft(CurrentNode):
-    NewNode = CurrentNode.copy()
-    position = NewNode.index(0)
-
-    tmp = NewNode[position]
-    NewNode[position] = NewNode[position + 3]
-    NewNode[position + 3] = tmp
+def ActionMoveUpLeft(x,y):
+    NewNode = [x-1 , y+1]
+    
     return NewNode
 
+# def getCost(direction):
+    
+#     if direction==
+#         return 1
+#     elif direction==
 
 '''Check for Goal Node Function'''
-#################
-
-
-##################
+def compare2Goal(now,goal):
+    if np.array_equal(now, goal) or now==goal:
+        return True
+    else:
+        return False
 
 '''backtracking function'''
 def generate_path(start, end, pathTaken):
@@ -256,12 +231,7 @@ def generate_path(start, end, pathTaken):
     
     return path
     
-def GetInitialState():
-    print("Enter initial node, separated by spaces: ")
-    initial=[int(x) for x in input().split()]
-    print("Enter goal node, separated by spaces: ")
-    final=[int(x) for x in input().split()]
-    return initial, final
+
 
 def makeFiles(visited, last, path, p_index, n_index):
     '''Visited=Visited_Nodes, last=results

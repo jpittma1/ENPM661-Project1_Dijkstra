@@ -36,22 +36,30 @@ OpenList = PriorityQueue()  #nodes still to be explored
 ClosedList=[]                     #nodes explored
 goal_reached=False
 
-'''--User input for initial and goal State---'''
+'''--User input for initial and goal State--'''
 # Xi,Xg=GetInitialState()
 
-#--for testing--
+####--for testing--####
 Xi = [0,0] #starts at Origin
 Xg=[100, 200] #above hexagon
 # Xg=[200, 220] #above hexagon
 # Xg=[390,240] #behind circle
+################################
+
 print("Initial State is ", Xi)
 print("Goal state is: ", Xg)
 
-##################
-#VERIFY NOT IN OBSTACLE SPACE
+#######CHECK IF ENTERED VALUES ARE VALID###########
+if isInObstacleSpace(Xi[0],Xi[1]):
+    print("Initial state is in an obstacle or off the map, please provide new valid initial state")
+    exit()
+    
+if isInObstacleSpace(Xg[0],Xg[1]):
+    print("Goal state is in an obstacle or off the map, please provide new valid initial state")
+    exit()
 
-#####################
 
+####################INITIALIZE NODEs AND MAP###############
 '''Initialize tuple and store in OpenList priority queue.
        [0]=cost to come; initially set to 0
        [1]=index; initially set to 0
@@ -79,48 +87,55 @@ map_y, map_x = map_size
 #                          cv2.VideoWriter_fourcc(*'MJPG'), 
 #                          300, (map_x, map_y))
 
-# space = np.zeros((map_x, map_y, 3), np.uint8)
-# # print("space shape", space.shape)
-# space = updateNodesOnMap(space, Xi, [0,0,255])
-# space = updateNodesOnMap(space, Xg, [0,0,255])
-# space = addObstacles2Map(space)
+space = np.zeros((map_x, map_y, 3), np.uint8)
+# print("space shape", space.shape)
+space = updateNodesOnMap(space, Xi, [0,0,255])
+space = updateNodesOnMap(space, Xg, [0,0,255])
+space = addObstacles2Map(space)
 
-##################
-#VERIFY NOT IN OBSTACLE SPACE
-
-#####################
 
 # cv2.imwrite('map.jpg', space)
 # cv2.imshow('frame', space)
-'''Conduct Dijkstra algorithm to find path between initial and goal node avoiding obstacles'''
+
+###########Dijkstra Algorithm While Loop#############
+'''Conduct Dijkstra algorithm to find path between 
+initial and goal node avoiding obstacles'''
 
 start = timeit.default_timer()
 print("Commencing Dijkstra Search.......")
 while (not OpenList.empty() and goal_reached==False):
    
-   current_node=OpenList.get()
-   print("current_node is ", current_node)
-   i,j = current_node[3]
-   print("current_node location is ", current_node[3])
-   
-   ClosedList.append(current_node)
-   
-#    space = updateNodesOnMap(space, current_node.getState(), [0, 255, 0])
-   
-#    cv2.imshow('frame',space)
-   # # video.write(space)
-   #UPDATE MAP BASED ON NEW POSITION
-   
-#    moves_x={'N':i, 'NE':i+1, 'E':i+1, 'SE':i+1, 'S':i, 'SW':i-1, 'W':i-1, 'NW':i-1}
-#    moves_y={'N':j+1, 'NE':j+1, 'E':j, 'SE':j-1, 'S':j-1, 'SW':j-1, 'W':j, 'NW':j+1}
+    current_node=OpenList.get()
+    print("current_node is ", current_node)
+    i,j = current_node[3]
+    print("current_node location is ", current_node[3])
+
+    ClosedList.append(current_node)
+
+    space = updateNodesOnMap(space, current_node[3], [0, 255, 0])
+
+    #    cv2.imshow('frame',space)
+    # # video.write(space)
+    #UPDATE MAP BASED ON NEW POSITION
+
+    #    moves_x={'N':i, 'NE':i+1, 'E':i+1, 'SE':i+1, 'S':i, 'SW':i-1, 'W':i-1, 'NW':i-1}
+    #    moves_y={'N':j+1, 'NE':j+1, 'E':j, 'SE':j-1, 'S':j-1, 'SW':j-1, 'W':j, 'NW':j+1}
 
     # print("Queue start is ", Node_State_i)
     # print("Goal state is ", Goal_State)
-    '''#####Convert to a function...#####'''
-    if np.array_equal(current_node[3], Xg):
+
+    #'''Verify if current Node is Goal Node returns: 
+    #True if are same/reached; 
+    #False if are different/not reached'''
+    
+    reachedGoal=compare2Goal(current_node[3],Xg)
+   
+    if reachedGoal==True:
         print("Goal Reached!!")
         # print("Total cost of path: ", total_cost)
+        ###cost2come_total
         '''Back track path here...'''
+        
         '''Make plot/video'''
         results=current_node[3]
         break
@@ -129,10 +144,10 @@ while (not OpenList.empty() and goal_reached==False):
         
         x_prime=determinePossibleMoves(current_node)
         
-        if x_prime not in ClosedList and x_prime is not ####IN OBSTACLE SPACE####:
-            if x_prime not in OpenList or x_prime == math.inf:
-        
-        cost2come_total=
+        # if x_prime not in ClosedList and x_prime is not ####IN OBSTACLE SPACE####:
+        #     if x_prime not in OpenList or cost(x_prime) == math.inf:
+        #         print("Not in OpenList or x_prinme==math.inf")
+        # cost2come_total=
 
     # Finds Blank tile location then perform BFS based on 
     #     possible moves in that location location

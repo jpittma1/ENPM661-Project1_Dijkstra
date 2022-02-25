@@ -37,7 +37,7 @@ b_middle_y=185
 boomerang_pts=np.array([[b_bottom_x, b_bottom_y-total_clearance],
                         [b_middle_right_x+total_clearance,b_middle_y],
                         [b_top_x,b_top_y+total_clearance],
-                    [b_middle_left_x-total_clearance,b_middle_y]], np.int32)
+                        [b_middle_left_x-total_clearance,b_middle_y]], np.int32)
 # print("Boomerang polypoints", boomerang_pts)
 # boomerang_pts = boomerang_pts.reshape((-1,1,2))
 # print("Boomerang polypoints", boomerang_pts)
