@@ -9,6 +9,8 @@
 import numpy as np
 from numpy import linalg as LA
 
+
+
 sizex = 400
 sizey = 250
 robot_radius = 0
@@ -33,13 +35,26 @@ b_middle_right_x=80
 b_middle_y=185
 
 #Points of the boomerang, add clearance on right(+x), top(+y), bottom(-y), and left (-x)
+#Split into two triangles; CCW
+# boomerang_pts_A=np.array([[b_middle_left_x-total_clearance,b_middle_y],
+#                         [b_bottom_x, b_bottom_y-total_clearance],
+#                         [b_middle_right_x+total_clearance,b_middle_y]], np.int32)
 
-boomerang_pts=np.array([[b_bottom_x, b_bottom_y-total_clearance],
-                        [b_middle_right_x+total_clearance,b_middle_y],
-                        [b_top_x,b_top_y+total_clearance],
-                        [b_middle_left_x-total_clearance,b_middle_y]], np.int32)
+# boomerang_pts_B=np.array([[b_middle_right_x+total_clearance,b_middle_y],
+#                         [b_top_x,b_top_y+total_clearance],
+#                         [b_middle_left_x-total_clearance,b_middle_y]], np.int32)
+
+boomerang_pts_A=np.array([[b_middle_left_x,b_middle_y],
+                        [b_bottom_x, b_bottom_y],
+                        [b_middle_right_x,b_middle_y]], np.int32)
+
+boomerang_pts_B=np.array([[b_middle_right_x,b_middle_y],
+                        [b_top_x,b_top_y],
+                        [b_middle_left_x,b_middle_y]], np.int32)
+
 # print("Boomerang polypoints", boomerang_pts)
-# boomerang_pts = boomerang_pts.reshape((-1,1,2))
+boomerang_pts_A = boomerang_pts_A.reshape((-1,1,2))
+boomerang_pts_B = boomerang_pts_A.reshape((-1,1,2))
 # print("Boomerang polypoints", boomerang_pts)
 
 # pts = np.array([[10,5],[20,30],[70,20],[50,10]], np.int32)
@@ -107,5 +122,7 @@ hexagon_pts=np.array([[hexagon_offset_x,hexagon_offset_y-hexagon_radius-total_cl
                     [hexagon_offset_x,hexagon_offset_y+hexagon_radius+total_clearance],
                     [hexagon_left_x-total_clearance,hexagon_offset_y+hexagon_radius/2],
                     [hexagon_left_x-total_clearance,hexagon_offset_y-hexagon_radius/2]], np.int32)
+
+
 # print("hexagon polypoints", hexagon_pts)
-# hexagon_pts = hexagon_pts.reshape((-1,1,2))
+hexagon_pts = hexagon_pts.reshape((-1,1,2))

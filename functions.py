@@ -6,6 +6,10 @@
 #jpittma1@umd.edu
 #Project #2 Functions
 
+import copy
+import timeit
+import queue
+from queue import PriorityQueue
 import numpy as np
 import cv2
 import scipy
@@ -15,6 +19,7 @@ import matplotlib.pyplot as plt
 import sys
 import math
 from obstacles import *
+from Node import *
 
 def GetInitialStateS():
     print("Enter initial node, separated by spaces: ")
@@ -25,31 +30,77 @@ def GetInitialStateS():
 
 ###########################################
 '''OpenCV/ Visualization Functions'''
+
+#To fix the origin from top left to bottom right
 def updateNodesOnMap(map, node_state, color):
     x,y, _ = map.shape
-    trans_y=node_state[0]
-    trans_x=x-node_state[1] - 1
+    trans_y = node_state[0]  
+    trans_x = x - node_state[1] - 1
     map[trans_x,trans_y, :] = color
     
     return map
 
+#Equation of line for Hexagon and Boomerang
+def lineEquation(p1,p2,x,y):
+    func = ((p2[1] - p1[1]) * (x - p1[0])) / ( p2[0] - p1[0]) + p1[1] - y
+    
+    return func
+
 def addObstacles2Map(map):
     
-    #circle
+    #########---------PLOT Circle----------------#########
     # cv2.circle(map, (circle_offset_x, circle_offset_y),circle_radius, (0,255,255),-1)
-    cv2.circle(map, (300, 185),45, (0,255,255),-1)
+    # cv2.circle(map, (300, 185),45, (0,255,255),-1)
     # map=cv2.circle(map, [300,185],circle_radius, (250,0,0),3)
     # cv2.circle(map, [300,185],circle_radius, (255,0,0),3)
+    # circle_diameter = 80 
+    # circle_offset_x = 300 #400-100
+    # circle_offset_y = 185 #250-65
+    # circle_radius = int(circle_diameter/2 + total_clearance)
+    for i in range(circle_offset_x - circle_radius, circle_offset_x + circle_radius):
+        for j in range(circle_offset_y - circle_radius, circle_offset_y + circle_radius):
+            if (i - circle_offset_x) **2 + (j - circle_offset_y)**2 <= circle_radius**2:
+                updateNodesOnMap(map, [i, j], [0,255,255])
     
-    # cv2.imwrite('map.jpg', map)
+    # hexagon_diameter=70
+    # hexagon_radius = hexagon_diameter/2
+    # hexagon_offset_x=200
+    # hexagon_offset_y=100
+    # b_bottom_x=105
+    # b_bottom_y=100
+    # b_top_x=210
+    # b_top_y=115
+    # b_middle_left_x=36
+    # b_middle_right_x=80
+    # b_middle_y=185 
+    # clearance = 5
+    # total_clearance = robot_radius + clearance
+    for i in range(map.shape[0]):
+        for j in range(map.shape[1]):
+            
+            # ######--------------Boomerang Top-----------------#########
+            # if (lineEquation((31,65),(120,35),i,j) < 0 and lineEquation((31,65),(105,155),i,j) > 0 and lineEquation((80,70),(110,155),i,j) < 0):
+            #     updateNodesOnMap(map, [i, j], [0,255,255])
+            
+            ######--------------Hexagon-----------------#########
+            if (i > 160 and i < 240 and lineEquation((160,130),(200,110),i,j) < 0 and lineEquation((200,110),(240,130),i,j) < 0 and lineEquation((160,170.20),(200,190),i,j) > 0 and lineEquation((200,190),(240,170),i,j) > 0):
+                updateNodesOnMap(map, [i, j], [0,255,255])
+                
+            # #########---------Boomerang Bottom----------------#########
+            # if (lineEquation((80,75),(110,155),i,j) > 0 and lineEquation((31,65),(120,35),i,j) < 0 and lineEquation((80,70),(120,35),i,j) > 0):
+            #     updateNodesOnMap(map, [i, j], [0,255,255])
+    
     # cv2.imshow(map)
     
-    #boomerang
+    #########---------PLOT Boomerang----------------#########
+    #-----Boomerang--------------
     # cv2.polylines(map,[boomerang_pts],True,(0,255,255))
-    cv2.fillConvexPoly(map,boomerang_pts,(0,255,255))
+    cv2.fillConvexPoly(map,boomerang_pts_A,(0,255,255))
+    cv2.fillConvexPoly(map,boomerang_pts_B,(0,255,255))
     
-    #hexagon
+    #----------Hexagon----------------
     # cv2.polylines(map,[hexagon_pts],True,(0,255,255))
+    # cv2.fillConvexPoly(map,hexagon_pts,(255,0,0))
     cv2.fillConvexPoly(map,hexagon_pts,(0,255,255))
     
     # result = cv2.pointPolygonTest(contour, (x,y), False) 
@@ -60,14 +111,16 @@ def addObstacles2Map(map):
 
     # black_frame = np.zeros_like(your_frame).astype(np.uint8)
     # cv2.fillPoly(black_frame , [hull], (255, 255, 255))
-    
+    # cv2.imwrite('map.jpg', map)
     return map
 
 ############################################################
 '''Return 1 if within an obstacle or outside of map'''
 def isInObstacleSpace(x,y):
-    x_max=400
-    y_max=250
+    # x=int(i)
+    # y=int(j)
+    x_max=400-1
+    y_max=250-1
     '''positive (inside), negative (outside), or zero (on an edge) value,
     In the function, the third argument is measureDist. If it is True, it finds the
     shortest distance between a point in the image and a contour. If False, it finds
@@ -75,7 +128,7 @@ def isInObstacleSpace(x,y):
     find the distance, we set the measureDist argument to False'''
     
     #Check if within Map
-    if x>(x_max-1) or x<0 or y<0 or y>(y_max-1):
+    if (x > x_max or int(x)<0 or int(y)<0 or int(y)>y_max):
         return 1
     
     #Check if within circle
@@ -90,45 +143,116 @@ def isInObstacleSpace(x,y):
 
     
     #check if within boomerang
-    in_boomerang=cv2.pointPolygonTest(boomerang_pts, (x,y), False)
-    if in_boomerang>0:
+    in_boomerang_bottom=cv2.pointPolygonTest(boomerang_pts_A, (x,y), False)
+    if in_boomerang_bottom>0:
+        return 1
+    
+    in_boomerang_top=cv2.pointPolygonTest(boomerang_pts_B, (x,y), False)
+    if in_boomerang_top>0:
         return 1
     
     return 0
 
-def determinePossibleMoves(node):
-    i, j = node[3]
-    possibleMoves=[]
+def possibleMoves(current_node):
+    # i = int(current_node[0])
+    # j=  int(current_node[1])
+    i,j=current_node.getState()
+    # print("current_node [0", current_node[0])
+    moves = ['N','NE', 'E', 'SE', 'S', 'SW','W', 'NW']
+    poss_moves = ['N','NE', 'E', 'SE', 'S', 'SW','W', 'NW']
+    move_i = [i, i+1, i+1, i+1, i, i-1, i-1, i-1]
+    move_j = [j+1, j+1, j, j-1, j-1, j-1, j, j+1]
+    for move in range(len(moves)):
+        if (isInObstacleSpace(move_i[move], move_j[move]) or current_node.getParentState() == [move_i[move], move_j[move]]):
+            poss_moves.remove(moves[move])
+    # print(final_moves)
+    return poss_moves
+
+# def determinePossibleMoves(node):
+#     i, j = node[3]
+#     possibleMoves=[]
     
-    possibleMoves.append(ActionMoveUp(i,j))
-    possibleMoves.append(ActionMoveUpRight(i,j))
-    possibleMoves.append(ActionMoveRight(i,j))
-    possibleMoves.append(ActionMoveDownRight(i,j))
-    possibleMoves.append(ActionMoveDown(i,j))
-    possibleMoves.append(ActionMoveDownLeft(i,j))
-    possibleMoves.append(ActionMoveLeft(i,j))
-    possibleMoves.append(ActionMoveUpLeft(i,j))
+#     possibleMoves.append(ActionMoveUp(i,j))
+#     possibleMoves.append(ActionMoveUpRight(i,j))
+#     possibleMoves.append(ActionMoveRight(i,j))
+#     possibleMoves.append(ActionMoveDownRight(i,j))
+#     possibleMoves.append(ActionMoveDown(i,j))
+#     possibleMoves.append(ActionMoveDownLeft(i,j))
+#     possibleMoves.append(ActionMoveLeft(i,j))
+#     possibleMoves.append(ActionMoveUpLeft(i,j))
     
     
-    # moves = ['N','NE', 'E', 'SE', 'S', 'SW','W', 'NW']
-    # # final_moves = ['N','NE', 'E', 'SE', 'S', 'SW','W', 'NW']
-    # move_i = [i, i+1, i+1, i+1, i, i-1, i-1, i-1]
-    # move_j = [j+1, j+1, j, j-1, j-1, j-1, j, j+1]
+#     # moves = ['N','NE', 'E', 'SE', 'S', 'SW','W', 'NW']
+#     # # final_moves = ['N','NE', 'E', 'SE', 'S', 'SW','W', 'NW']
+#     # move_i = [i, i+1, i+1, i+1, i, i-1, i-1, i-1]
+#     # move_j = [j+1, j+1, j, j-1, j-1, j-1, j, j+1]
     
-    for move in range(len(possibleMoves)):
-        #verify not in obstacle and within map boundaries and if possible move is a parent
+#     for move in range(len(possibleMoves)):
+#         #verify not in obstacle and within map boundaries and if possible move is a parent
         
-        # if (isInObstacleSpace(move_i[move], move_j[move]) or node[2] == [move_i[move], move_j[move]]):
-        if (isInObstacleSpace(possibleMoves[move][0], possibleMoves[move][1]) or node[2] == [possibleMoves[move][0], possibleMoves[move][1]]):
-            possibleMoves.remove(possibleMoves[move])
+#         # if (isInObstacleSpace(move_i[move], move_j[move]) or node[2] == [move_i[move], move_j[move]]):
+#         if (isInObstacleSpace(possibleMoves[move][0], possibleMoves[move][1]) or node[2] == [possibleMoves[move][0], possibleMoves[move][1]]):
+#             possibleMoves.remove(possibleMoves[move])
     
-    print(possibleMoves)
+#     print(possibleMoves)
     
-    return possibleMoves
+#     return possibleMoves
 
 '''-----8 Subfunctions for actions-----
 Action sets= {(1,0), (-1,0), (0,1), 
 (0,-1), (1,1), (-1,1),(1,-1),(-1,-1)}'''
+#moves_cost = {'N':1, 'NE':1.4, 'E':1, 'SE':1.4, 'S':1, 'SW':1.4, 'W':1, 'NW':1.4}
+def ActionMove(node,direction):
+    if direction == 'N':
+        NewNode = node
+        NewNode[1] = node[1] + 1
+        NewNode[2] = node[2] + 1
+        cost = 1
+    elif direction == 'NE':
+        NewNode = node
+        NewNode[1] = node[1] + 1
+        NewNode[0] = node[0] + 1
+        NewNode[2] = node[2] + 1
+        cost = 1.4
+    elif direction == 'E':
+        NewNode = node
+        NewNode[0] = node[0] + 1
+        NewNode[2] = node[2] + 1
+        cost = 1
+    elif direction == 'SE':
+        NewNode = node
+        NewNode[1] = node[1] - 1
+        NewNode[0] = node[0] + 1
+        NewNode[2] = node[2] + 1
+        cost = 1.4
+    elif direction == 'S':
+        NewNode = node
+        NewNode[1] = node[1] - 1
+        NewNode[2] = node[2] + 1
+        cost = 1
+    elif direction == 'SW':
+        NewNode = node
+        NewNode[1] = node[1] - 1
+        NewNode[0] = node[0] - 1
+        NewNode[2] = node[2] + 1
+        cost = 1.4
+    elif direction == 'W':
+        NewNode = node
+        NewNode[0] = node[0] - 1
+        NewNode[2] = node[2] + 1
+        cost = 1
+    elif direction == 'NW':
+        NewNode = node
+        NewNode[1] = node[1] + 1
+        NewNode[0] = node[0] - 1
+        NewNode[2] = node[2] + 1
+        cost = 1.4
+    else:
+        NewNode = node
+        cost = 0
+
+    return NewNode, cost
+
 def ActionMoveLeft(x,y):
     NewNode = [x-1 , y]
     

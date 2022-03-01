@@ -6,11 +6,12 @@ import math
 class Node():
     def __init__(self, state, parent, move, cost): 
         # creating tuple with cost to come, index, parent node index=0 and coordinate values (x,y) 
-        self.state = state
-        self.parent = parent
+        self.state = state      #index
+        self.parent = parent    #parent of current node
         self.move = move
-        self.cost = math.inf
+        self.cost = cost    #cost to come; default will be set to math.inf
         
+    #---Accessors--
     def getState(self):
         return self.state
 		
@@ -27,12 +28,25 @@ class Node():
 		
     def getCost(self):
         return self.cost
+    
+    #Override less than operator
+    def __lt__(self, other):
+        return self.cost < other.cost
 
+    '''Backtracking Function'''
     def getFullPath(self):
-        
         moves = []
         nodes = []
         current_node = self
+        
+        # path_list = []   
+        # parent = Child_parent_map[Goalnode]
+        # path_list.append(Goalnode)
+        
+        # while parent is not None:  # Since the start node doesn’t have any parent
+        #     path_list.append(parent)
+        #     parent = Child_parent_map[parent]
+        
         while(current_node.getMove() is not None):
 
             moves.append(current_node.getMove())
