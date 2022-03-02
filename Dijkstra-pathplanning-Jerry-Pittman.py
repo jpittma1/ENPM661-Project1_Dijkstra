@@ -89,8 +89,8 @@ video = cv2.VideoWriter(str(videoname)+".avi",  fourcc, 300, (map_x, map_y))
 
 space = np.zeros([map_size[0], map_size[1], 3], dtype=np.uint8) 
 # print("space shape", space.shape)
-space = updateNodesOnMap(space, Xi, [255,255,0])
-space = updateNodesOnMap(space, Xg, [255,255,0])
+space = updateNodesOnMap(space, Xi, [0,0,255])
+space = updateNodesOnMap(space, Xg, [0,0,255])
 space = addObstacles2Map(space)
 
 cv2.imwrite('Initial_map.jpg', space)

@@ -79,13 +79,6 @@ hexagon_pts=np.array([[hexagon_left_x,hexagon_upper_y],
                     [hexagon_bottom_x,hexagon_bottom_y],
                     [hexagon_left_x,hexagon_lower_y]], np.int32)
 
-# hexagon_pts=np.array([[hexagon_offset_x,hexagon_offset_y-hexagon_radius-total_clearance],
-#                     [hexagon_right_x+total_clearance, hexagon_offset_y-hexagon_radius/2],
-#                     [hexagon_right_x+total_clearance, hexagon_offset_y+hexagon_radius/2],
-#                     [hexagon_offset_x,hexagon_offset_y+hexagon_radius+total_clearance],
-#                     [hexagon_left_x-total_clearance,hexagon_offset_y+hexagon_radius/2],
-#                     [hexagon_left_x-total_clearance,hexagon_offset_y-hexagon_radius/2]], np.int32)
-
 
 # print("hexagon polypoints", hexagon_pts)
 # hexagon_pts = hexagon_pts.reshape((-1,1,2))
