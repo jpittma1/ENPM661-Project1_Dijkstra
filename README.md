@@ -7,9 +7,12 @@ UMD-CP PMRO. Spring 2022
 
 #********************************************
 #Requires the following in same folder to run:
-# 1) Python code: "functions.py" and "jpittma1_project2.py"
-# 2) Image for Problem 2.a: "testudo.png"
-# 3) Video for problem 1 and 2: "1tagvideo.mp4"
+# 1) Python code: "functions.py", "Node.py", and "obstacles.py" and "Dijkstra-pathplanning-Jerry-Pittman.py"
+
+#Generates the following outputs:
+# 2) Initial Map Image : "initial_map.png"
+# 3) Final Map Image (with path): "Final_map.png"
+# 4) Video for problem 1 and 2: "project1-jerry-pittman.avi"
 #********************************************
 
-Function modules used: numpy, cv2, scipy, matplotlib.pyplot, sys, math
+Function modules used: numpy, cv2, scipy, matplotlib.pyplot, sys, math, copy, timeit, queue
