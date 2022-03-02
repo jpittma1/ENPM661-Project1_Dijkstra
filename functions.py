@@ -21,7 +21,7 @@ import math
 from obstacles import *
 from Node import *
 
-def GetInitialStateS():
+def GetInitialStates():
     print("Enter initial node, separated by spaces: ")
     initial=[int(x) for x in input().split()]
     print("Enter goal node, separated by spaces: ")
@@ -49,76 +49,32 @@ def lineEquation(p1,p2,x,y):
 def addObstacles2Map(map):
     
     #########---------PLOT Circle----------------#########
-    # cv2.circle(map, (circle_offset_x, circle_offset_y),circle_radius, (0,255,255),-1)
-    # cv2.circle(map, (300, 185),45, (0,255,255),-1)
-    # map=cv2.circle(map, [300,185],circle_radius, (250,0,0),3)
-    # cv2.circle(map, [300,185],circle_radius, (255,0,0),3)
-    # circle_diameter = 80 
-    # circle_offset_x = 300 #400-100
-    # circle_offset_y = 185 #250-65
-    # circle_radius = int(circle_diameter/2 + total_clearance)
     for i in range(circle_offset_x - circle_radius, circle_offset_x + circle_radius):
         for j in range(circle_offset_y - circle_radius, circle_offset_y + circle_radius):
             if (i - circle_offset_x) **2 + (j - circle_offset_y)**2 <= circle_radius**2:
                 updateNodesOnMap(map, [i, j], [0,255,255])
     
-    # hexagon_diameter=70
-    # hexagon_radius = hexagon_diameter/2
-    # hexagon_offset_x=200
-    # hexagon_offset_y=100
-    # b_bottom_x=105
-    # b_bottom_y=100
-    # b_top_x=210
-    # b_top_y=115
-    # b_middle_left_x=36
-    # b_middle_right_x=80
-    # b_middle_y=185 
-    # clearance = 5
-    # total_clearance = robot_radius + clearance
-    for i in range(map.shape[0]):
-        for j in range(map.shape[1]):
-            
-            # ######--------------Boomerang Top-----------------#########
-            # if (lineEquation((31,65),(120,35),i,j) < 0 and lineEquation((31,65),(105,155),i,j) > 0 and lineEquation((80,70),(110,155),i,j) < 0):
-            #     updateNodesOnMap(map, [i, j], [0,255,255])
-            
-            ######--------------Hexagon-----------------#########
-            if (i > 160 and i < 240 and lineEquation((160,130),(200,110),i,j) < 0 and lineEquation((200,110),(240,130),i,j) < 0 and lineEquation((160,170.20),(200,190),i,j) > 0 and lineEquation((200,190),(240,170),i,j) > 0):
+
+    for i in range(map.shape[1]):
+       for j in range(map.shape[0]):
+            #-----HEXAGON--------------------------
+            if (i<hexagon_right_x and i>hexagon_left_x and lineEquation((hexagon_left_x,hexagon_upper_y),(hexagon_top_x,hexagon_top_y),i,j) > 0 and lineEquation((hexagon_top_x,hexagon_top_y),(hexagon_right_x,hexagon_upper_y),i,j) > 0 and lineEquation((hexagon_left_x,hexagon_lower_y),(hexagon_bottom_x,hexagon_bottom_y),i,j) < 0 and lineEquation((hexagon_bottom_x,hexagon_bottom_y),(hexagon_right_x,hexagon_lower_y),i,j) < 0):
                 updateNodesOnMap(map, [i, j], [0,255,255])
-                
-            # #########---------Boomerang Bottom----------------#########
-            # if (lineEquation((80,75),(110,155),i,j) > 0 and lineEquation((31,65),(120,35),i,j) < 0 and lineEquation((80,70),(120,35),i,j) > 0):
-            #     updateNodesOnMap(map, [i, j], [0,255,255])
-    
-    # cv2.imshow(map)
-    
-    #########---------PLOT Boomerang----------------#########
-    #-----Boomerang--------------
-    # cv2.polylines(map,[boomerang_pts],True,(0,255,255))
-    cv2.fillConvexPoly(map,boomerang_pts_A,(0,255,255))
-    cv2.fillConvexPoly(map,boomerang_pts_B,(0,255,255))
-    
-    #----------Hexagon----------------
-    # cv2.polylines(map,[hexagon_pts],True,(0,255,255))
-    # cv2.fillConvexPoly(map,hexagon_pts,(255,0,0))
-    cv2.fillConvexPoly(map,hexagon_pts,(0,255,255))
-    
-    # result = cv2.pointPolygonTest(contour, (x,y), False) 
-    # positive (inside), negative (outside), or zero (on an edge) value,
-    # In the function, the third argument is measureDist. If it is True, it finds the shortest distance between a point in the image and a contour. If False, it finds whether the point is inside, 
-    # outside, or on the contour. Since we don't want to find the distance, we set the measureDist argument to False
+            
+            #----Top Triangle of Boomerang--------
+            if(lineEquation((left_x,left_y),(triangle_top_x,triangle_top_y),i,j) >0 and lineEquation((triangle_top_x,triangle_top_y),(right_x, right_y),i,j) <0 and lineEquation((left_x,left_y),(right_x, right_y),i,j) <0):
+                updateNodesOnMap(map, [i, j], [0,255,255])
 
-
-    # black_frame = np.zeros_like(your_frame).astype(np.uint8)
-    # cv2.fillPoly(black_frame , [hull], (255, 255, 255))
-    # cv2.imwrite('map.jpg', map)
+            #----Bottom Triangle of Boomerang---------
+            if(lineEquation((left_x,left_y),(triangle_bottom_x,triangle_bottom_y),i,j) <0 and lineEquation((triangle_bottom_x,triangle_bottom_y),(right_x, right_y),i,j) >0 and lineEquation((right_x, right_y),(left_x,left_y),i,j) >0):
+                updateNodesOnMap(map, [i, j], [0,255,255])
+            
+            
     return map
 
 ############################################################
 '''Return 1 if within an obstacle or outside of map'''
 def isInObstacleSpace(x,y):
-    # x=int(i)
-    # y=int(j)
     x_max=400-1
     y_max=250-1
     '''positive (inside), negative (outside), or zero (on an edge) value,
@@ -140,15 +96,15 @@ def isInObstacleSpace(x,y):
     in_hexagon=cv2.pointPolygonTest(hexagon_pts, (x,y), False)
     if in_hexagon>0:
         return 1
-
-    
+  
     #check if within boomerang
-    in_boomerang_bottom=cv2.pointPolygonTest(boomerang_pts_A, (x,y), False)
-    if in_boomerang_bottom>0:
+    
+    in_boomerang_top=cv2.pointPolygonTest(boomerang_pts_top, (x,y), False)
+    if in_boomerang_top>0:
         return 1
     
-    in_boomerang_top=cv2.pointPolygonTest(boomerang_pts_B, (x,y), False)
-    if in_boomerang_top>0:
+    in_boomerang_bottom=cv2.pointPolygonTest(boomerang_pts_bottom, (x,y), False)
+    if in_boomerang_bottom>0:
         return 1
     
     return 0
