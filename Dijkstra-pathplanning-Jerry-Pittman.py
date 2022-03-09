@@ -6,22 +6,6 @@
 #jpittma1@umd.edu
 #Project #2
 
-# import numpy as np
-# import copy
-# import timeit
-# import queue
-# from queue import PriorityQueue
-# import numpy as np
-# import cv2
-# import scipy
-# from scipy import fft, ifft
-# from numpy import linalg as LA
-# import matplotlib.pyplot as plt
-# import sys
-# import math
-# from obstacles import *
-# from Node import *
-
 from Node import *
 from functions import *
 from obstacles import *
@@ -83,7 +67,7 @@ print("Initial and Goal points are valid...Generating map...")
 '''
 map_size = [250, 400] 
 map_y, map_x = map_size
-videoname=('project1-jerry-pittman')
+videoname=('project2-jerry-pittman')
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 video = cv2.VideoWriter(str(videoname)+".avi",  fourcc, 300, (map_x, map_y))
 
