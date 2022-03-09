@@ -39,14 +39,6 @@ class Node():
         nodes = []
         current_node = self
         
-        # path_list = []   
-        # parent = Child_parent_map[Goalnode]
-        # path_list.append(Goalnode)
-        
-        # while parent is not None:  # Since the start node doesn’t have any parent
-        #     path_list.append(parent)
-        #     parent = Child_parent_map[parent]
-        
         while(current_node.getMove() is not None):
 
             moves.append(current_node.getMove())
